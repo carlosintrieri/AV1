@@ -112,8 +112,7 @@ O primeiro acesso deve ser feito com o usuário administrador. Depois, o adminis
 1. Consultar status de aeronaves
 2. Verificar progresso das etapas
 3. Visualizar responsáveis por etapas
-4. Acompanhar testes realizados
-5. Reportar observações à equipe
+4. Acompanhar testes realizadoa
 
 ---
 
@@ -296,5 +295,5 @@ Para dúvidas ou problemas, consulte:
 
 **Sistema desenvolvido conforme especificação do projeto acadêmico.**  
 **Professor: Eng. Dr. Gerson Penha**
-#   A V 1  
+
  
