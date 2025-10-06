@@ -1,0 +1,79 @@
+
+================================================================================
+                    RELATÓRIO FINAL DE PRODUÇÃO
+================================================================================
+
+INFORMAÇÕES GERAIS:
+-------------------
+Data do Relatório: 30/09/2025 - 15:28:18
+Código da Aeronave: 1
+Modelo: Boing Incrível
+Tipo: COMERCIAL
+Capacidade: 120 passageiros
+Alcance: 350 km
+Cliente: Celso Camargo
+Data de Entrega: 01/10/2025
+
+PEÇAS UTILIZADAS E RESPONSÁVEIS:
+--------------------------------
+1. Sistema de Iluminação LED
+   Tipo: NACIONAL
+   Fornecedor: Helibras
+   Status Final: EM_TRANSPORTE
+   Responsáveis pela Construção: Carlos Albuquerque (OPERADOR)
+2. Motor Pratt & Whitney PW1100G
+   Tipo: IMPORTADA
+   Fornecedor: Pratt & Whitney
+   Status Final: EM_PRODUCAO
+   Responsáveis pela Construção: Nenhum responsável definido
+3. Motor Rolls-Royce BR725
+   Tipo: IMPORTADA
+   Fornecedor: Rolls-Royce
+   Status Final: PRONTA
+   Responsáveis pela Construção: Administrador do Sistema (ADMINISTRADOR)
+
+ETAPAS DE PRODUÇÃO:
+--------------------
+1. Montagem da Fuselagem
+   Status: CONCLUIDA
+   Prazo: 07/10/2025
+   Funcionários Envolvidos: Nenhum funcionário designado
+2. Instalação das Asas
+   Status: PENDENTE
+   Prazo: 14/10/2025
+   Funcionários Envolvidos: Nenhum funcionário designado
+3. Montagem do Trem de Pouso
+   Status: PENDENTE
+   Prazo: 21/10/2025
+   Funcionários Envolvidos: Carlos Albuquerque (OPERADOR)
+4. Instalação dos Motores
+   Status: PENDENTE
+   Prazo: 28/10/2025
+   Funcionários Envolvidos: Nenhum funcionário designado
+5. Testes Finais
+   Status: PENDENTE
+   Prazo: 04/11/2025
+   Funcionários Envolvidos: Nenhum funcionário designado
+
+RESULTADOS DOS TESTES:
+-----------------------
+1. Teste AERODINAMICO
+   Resultado: APROVADO
+   Data: 30/09/2025
+
+RESUMO DE RECURSOS HUMANOS:
+----------------------------
+1. Carlos Albuquerque (OPERADOR)
+   ID: 123 | Tel: 12 999999999
+   Peças Responsáveis: Sistema de Iluminação LED
+   Etapas Envolvidas: Montagem do Trem de Pouso
+2. Administrador do Sistema (ADMINISTRADOR)
+   ID: 1 | Tel: (00) 0000-0000
+   Peças Responsáveis: Motor Rolls-Royce BR725
+
+TOTAL DE FUNCIONÁRIOS ENVOLVIDOS: 2
+
+================================================================================
+AERONAVE PRONTA PARA ENTREGA
+Todos os funcionários envolvidos na produção estão documentados acima.
+================================================================================
