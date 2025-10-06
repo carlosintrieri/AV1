@@ -160,12 +160,12 @@ export class SistemaAerocode {
             console.log(" MENU PRINCIPAL");
             console.log("=".repeat(40));
             console.log("1. Gerenciar Aeronaves");
-            console.log("2. Gerenciar Pecas");
+            console.log("2. Gerenciar Peças");
             console.log("3. Gerenciar Etapas");
-            console.log("4. Gerenciar Funcionarios");
+            console.log("4. Gerenciar Funcionários");
             console.log("5. Gerenciar Testes");
-            console.log("6. Gerar Relatorio");
-            console.log("7. Ver Catalogo de Pecas");
+            console.log("6. Gerar Relatório");
+            console.log("7. Ver Catálogo de Peças");
             console.log("8. Sair");
             console.log("=".repeat(40));
             const opcao = await this.pergunta("Escolha uma opcao: ");
@@ -230,7 +230,6 @@ export class SistemaAerocode {
         console.log("\nAeronave cadastrada com sucesso!");
         console.log(`Codigo: ${codigo}`);
         console.log(`Modelo: ${modelo}`);
-        console.log(`5 etapas criadas automaticamente`);
     }
     private async listarAeronavesDetalhado(): Promise<void> {
         if (this.aeronaves.length === 0) {
@@ -275,18 +274,14 @@ export class SistemaAerocode {
             console.log("\n--- GERENCIAR PECAS ---");
             console.log("1. Adicionar Peca a Aeronave");
             console.log("2. Atualizar Status de Peca");
-            console.log("3. Associar Funcionario a Peca");
-            console.log("4. Remover Funcionario de Peca");
-            console.log("5. Listar Todas as Pecas (Detalhado)");
-            console.log("6. Voltar");
+            console.log("3. Listar Todas as Pecas (Detalhado)");
+            console.log("4. Voltar");
             const opcao = await this.pergunta("Escolha: ");
             switch (opcao) {
                 case '1': await this.adicionarPeca(); break;
                 case '2': await this.atualizarStatusPeca(); break;
-                case '3': await this.associarFuncionarioPeca(); break;
-                case '4': await this.removerFuncionarioPeca(); break; // Corrigido e completado
-                case '5': await this.listarTodasPecasComDetalhes(); break;
-                case '6': return;
+                case '3': await this.listarTodasPecasComDetalhes(); break;
+                case '4': return;
                 default: console.log("Opcao invalida!");
             }
         }
@@ -346,268 +341,109 @@ export class SistemaAerocode {
         console.log("1. EM_PRODUCAO");
         console.log("2. EM_TRANSPORTE");
         console.log("3. PRONTA");
-        const opcao = await this.pergunta("Status (1-3) - Usar a opção numérica: ");
+        const opcaoStatus = await this.pergunta("Status (1-3) - Usar a opção numérica: ");
         let status: StatusPeca;
-        switch (opcao) {
+        switch (opcaoStatus) {
             case '1': status = StatusPeca.EM_PRODUCAO; break;
             case '2': status = StatusPeca.EM_TRANSPORTE; break;
-            case '3': status = StatusPeca.PRONTA; break;
-            default:
-                status = StatusPeca.EM_PRODUCAO;
-                console.log("Status invalido. Usando EM_PRODUCAO.");
-        }
-        // CRIA UMA NOVA INSTANCIA DA CLASSE PECA com base na seleção do catálogo
-        const novaPeca = new Peca(pecaEscolhidaCatalogo.nome, pecaEscolhidaCatalogo.tipo, pecaEscolhidaCatalogo.fornecedor, status);
-        aeronave.adicionarPeca(novaPeca);
-        // Permitir associar funcionario durante a criacao da peca
-        if (this.verificarPermissao(NivelPermissao.ENGENHEIRO)) {
-            const perguntaAssociar = await this.pergunta("Deseja associar um funcionario responsavel agora? (s/n): ");
-            if (perguntaAssociar.toLowerCase() === 's') {
-                if (this.funcionarios.length === 0) {
-                    console.log("Nenhum funcionario cadastrado no sistema.");
-                } else {
-                    console.log("\n--- FUNCIONARIOS DISPONIVEIS ---");
-                    this.funcionarios.forEach((funcionario, indice) => {
-                        const numeroNaLista = indice + 1;
-                        console.log(`${numeroNaLista}. ${funcionario.nome} (${funcionario.nivelPermissao})`);
-                    });
-                    const numeroFuncionario = parseInt(
-                        await this.pergunta("Numero do funcionario (0 para pular): ")
-                    );
-                    const indiceFuncionario = numeroFuncionario - 1;
-                    if (indiceFuncionario >= 0 && indiceFuncionario < this.funcionarios.length) {
-                        novaPeca.associarFuncionario(this.funcionarios[indiceFuncionario]);
-                        console.log(`Funcionario '${this.funcionarios[indiceFuncionario].nome}' associado a peca!`);
-                    } else if (numeroFuncionario !== 0) {
-                        console.log("Numero de funcionario invalido.");
-                    }
-                }
-            }
-        }
-        this.salvarDados();
-        console.log(`Peca '${pecaEscolhidaCatalogo.nome}' adicionada com sucesso a aeronave ${aeronave.codigo}!`);
-    }
-    private async atualizarStatusPeca(): Promise<void> {
-        // CORREÇÃO AQUI: NivelPermissao.OPERADOR foi alterado para NivelPermissao.ENGENHEIRO
-        if (!this.verificarPermissao(NivelPermissao.ENGENHEIRO)) {
-            console.log("\nPermissao insuficiente! Apenas ENGENHEIRO e ADMINISTRADOR podem atualizar o status de pecas.");
-            return;
-        }
-        const aeronave = await this.selecionarAeronave();
-        if (!aeronave) return;
-        const pecas = aeronave.getPecas();
-        if (pecas.length === 0) {
-            console.log("\nNenhuma peca cadastrada nesta aeronave.");
-            return;
-        }
-        console.log("\n--- PECAS DA AERONAVE ---");
-        pecas.forEach((p, i) => {
-            console.log(`${i + 1}. ${p.nome}`);
-            console.log(` Status atual: ${p.status}`);
-            console.log(` Tipo: ${p.tipo} | Fornecedor: ${p.fornecedor}`);
-        });
-        const numero = parseInt(await this.pergunta("\nNumero da peca: "));
-        const indice = numero - 1;
-        if (isNaN(numero) || indice < 0 || indice >= pecas.length) {
-            console.log("Numero invalido!");
-            return;
-        }
-        const peca = pecas[indice];
-        console.log(`\n--- ALTERAR STATUS DE: ${peca.nome} ---`);
-        console.log(`Status atual: ${peca.status}`);
-        console.log("\n--- NOVO STATUS (pode escolher qualquer um) ---");
-        console.log("1. EM_PRODUCAO");
-        console.log("2. EM_TRANSPORTE");
-        console.log("3. PRONTA");
-        const opcao = await this.pergunta("Novo status (1-3) Utilizar opção numérica: ");
-        let novoStatus: StatusPeca;
-        switch (opcao) {
-            case '1': novoStatus = StatusPeca.EM_PRODUCAO; break;
-            case '2': novoStatus = StatusPeca.EM_TRANSPORTE; break;
-            case '3': novoStatus = StatusPeca.PRONTA; break;
+            case '3': status = StatusPeca.PRONTA; break; // Linha corrigida
             default:
                 console.log("Opcao invalida!");
                 return;
         }
-        // PERMITE MUDANCA LIVRE DE STATUS - SEM RESTRICOES
-        peca.atualizarStatus(novoStatus);
+        const peca = new Peca(pecaEscolhidaCatalogo.nome, pecaEscolhidaCatalogo.tipo, pecaEscolhidaCatalogo.fornecedor, status);
+        aeronave.adicionarPeca(peca);
         this.salvarDados();
-        console.log(`\nStatus atualizado com sucesso!`);
-        console.log(` ${peca.nome}: ${peca.status}`);
-        console.log("\nPecas podem alternar livremente entre os status!");
-    }
-    private async associarFuncionarioPeca(): Promise<void> {
-        if (!this.verificarPermissao(NivelPermissao.ENGENHEIRO)) {
-            console.log("\nPermissao insuficiente!");
-            return;
-        }
-        const aeronave = await this.selecionarAeronave();
-        if (!aeronave) return;
-        const pecasDaAeronave = aeronave.getPecas();
-        if (pecasDaAeronave.length === 0) {
-            console.log("\nNenhuma peca cadastrada para esta aeronave.");
-            return;
-        }
-        console.log("\n--- PECAS DA AERONAVE ---");
-        pecasDaAeronave.forEach((p, i) => {
-            console.log(`${i + 1}. ${p.nome} (Status: ${p.status})`);
-            const funcsAssociados = p.listarFuncionarios();
-            if (funcsAssociados.length > 0) {
-                console.log(`   Responsáveis: ${funcsAssociados.map(f => f.nome).join(', ')}`);
-            } else {
-                console.log(`   Responsáveis: Nenhum`);
-            }
-        });
-
-        const numeroPeca = parseInt(await this.pergunta("Numero da peca para associar funcionario: "));
-        const indicePeca = numeroPeca - 1;
-
-        if (isNaN(numeroPeca) || indicePeca < 0 || indicePeca >= pecasDaAeronave.length) {
-            console.log("Numero de peca invalido.");
-            return;
-        }
-        const pecaAlvo = pecasDaAeronave[indicePeca];
-
-        if (this.funcionarios.length === 0) {
-            console.log("Nenhum funcionario cadastrado no sistema.");
-            return;
-        }
-
-        console.log("\n--- FUNCIONARIOS DISPONIVEIS ---");
-        this.funcionarios.forEach((funcionario, indice) => {
-            const numeroNaLista = indice + 1;
-            console.log(`${numeroNaLista}. ${funcionario.nome} (${funcionario.nivelPermissao})`);
-        });
-
-        const numeroFuncionario = parseInt(await this.pergunta("Numero do funcionario para associar: "));
-        const indiceFuncionario = numeroFuncionario - 1;
-
-        if (isNaN(numeroFuncionario) || indiceFuncionario < 0 || indiceFuncionario >= this.funcionarios.length) {
-            console.log("Numero de funcionario invalido.");
-            return;
-        }
-        const funcionarioParaAssociar = this.funcionarios[indiceFuncionario];
-
-        const sucesso = pecaAlvo.associarFuncionario(funcionarioParaAssociar);
-        if (sucesso) {
-            console.log(`Funcionario '${funcionarioParaAssociar.nome}' associado a peca '${pecaAlvo.nome}'!`);
-        } else {
-            console.log(`Funcionario '${funcionarioParaAssociar.nome}' ja esta associado a peca '${pecaAlvo.nome}'.`);
-        }
-        this.salvarDados();
+        console.log(`\nPeca '${peca.nome}' adicionada a aeronave ${aeronave.codigo} com status ${peca.status}!`);
     }
 
-    private async removerFuncionarioPeca(): Promise<void> {
+    // Método adicionado com a verificação de permissão
+    private async atualizarStatusPeca(): Promise<void> {
         if (!this.verificarPermissao(NivelPermissao.ENGENHEIRO)) {
-            console.log("\nPermissao insuficiente!");
+            console.log("\nPermissao insuficiente! Apenas ENGENHEIRO e ADMINISTRADOR podem atualizar o status de pecas.");
             return;
         }
+
         const aeronave = await this.selecionarAeronave();
         if (!aeronave) return;
 
-        const pecasDaAeronave = aeronave.getPecas();
-        if (pecasDaAeronave.length === 0) {
+        const pecas = aeronave.getPecas();
+        if (pecas.length === 0) {
             console.log("\nNenhuma peca cadastrada para esta aeronave.");
             return;
         }
 
-        console.log("\n--- PECAS DA AERONAVE ---");
-        pecasDaAeronave.forEach((p, i) => {
-            console.log(`${i + 1}. ${p.nome} (Status: ${p.status})`);
-            const funcsAssociados = p.listarFuncionarios();
-            if (funcsAssociados.length > 0) {
-                console.log(`   Responsáveis: ${funcsAssociados.map(f => f.nome).join(', ')}`);
-            } else {
-                console.log(`   Responsáveis: Nenhum`);
-            }
+        console.log(`\n--- PECAS DA AERONAVE ${aeronave.codigo} ---`);
+        pecas.forEach((p, i) => {
+            console.log(`${i + 1}. ${p.nome} (${p.tipo}) - Fornecedor: ${p.fornecedor} - Status: ${p.status}`);
         });
 
-        const numeroPeca = parseInt(await this.pergunta("Numero da peca para remover funcionario: "));
+        const numeroPeca = parseInt(await this.pergunta("Numero da peca para atualizar: "));
         const indicePeca = numeroPeca - 1;
 
-        if (isNaN(numeroPeca) || indicePeca < 0 || indicePeca >= pecasDaAeronave.length) {
-            console.log("Numero de peca invalido.");
-            return;
-        }
-        const pecaAlvo = pecasDaAeronave[indicePeca];
-
-        const funcionariosDaPeca = pecaAlvo.listarFuncionarios();
-        if (funcionariosDaPeca.length === 0) {
-            console.log(`Nenhum funcionario associado a peca '${pecaAlvo.nome}'.`);
+        if (isNaN(numeroPeca) || indicePeca < 0 || indicePeca >= pecas.length) {
+            console.log("Numero de peca invalido!");
             return;
         }
 
-        console.log(`\n--- FUNCIONARIOS ASSOCIADOS A '${pecaAlvo.nome}' ---`);
-        funcionariosDaPeca.forEach((func, i) => {
-            console.log(`${i + 1}. ${func.nome} (${func.nivelPermissao})`);
-        });
+        const pecaSelecionada = pecas[indicePeca];
 
-        const numeroFuncionario = parseInt(await this.pergunta("Numero do funcionario para remover: "));
-        const indiceFuncionario = numeroFuncionario - 1;
+        console.log("\n--- NOVOS STATUS DISPONIVEIS ---");
+        console.log("1. EM_PRODUCAO");
+        console.log("2. EM_TRANSPORTE");
+        console.log("3. PRONTA");
+        const opcaoStatus = await this.pergunta("Escolha o novo status (1-3): ");
 
-        if (isNaN(numeroFuncionario) || indiceFuncionario < 0 || indiceFuncionario >= funcionariosDaPeca.length) {
-            console.log("Numero de funcionario invalido.");
-            return;
+        let novoStatus: StatusPeca;
+        switch (opcaoStatus) {
+            case '1': novoStatus = StatusPeca.EM_PRODUCAO; break;
+            case '2': novoStatus = StatusPeca.EM_TRANSPORTE; break;
+            case '3': novoStatus = StatusPeca.PRONTA; break;
+            default:
+                console.log("Opcao de status invalida!");
+                return;
         }
-        const funcionarioARemover = funcionariosDaPeca[indiceFuncionario];
 
-        // CORREÇÃO AQUI: Passando o objeto Funcionario completo, não apenas o código.
-        const sucesso = pecaAlvo.removerFuncionario(funcionarioARemover);
-        if (sucesso) {
-            console.log(`Funcionario '${funcionarioARemover.nome}' removido da peca '${pecaAlvo.nome}'!`);
-        } else {
-            console.log("Erro ao remover funcionario. Ele pode nao estar associado a esta peca.");
-        }
+        pecaSelecionada.atualizarStatus(novoStatus);
         this.salvarDados();
+        console.log(`\nStatus da peca '${pecaSelecionada.nome}' atualizado para '${novoStatus}' com sucesso!`);
     }
+
+    // Método adicionado para listar todas as peças com detalhes
     private async listarTodasPecasComDetalhes(): Promise<void> {
         if (this.aeronaves.length === 0) {
-            console.log("\nNenhuma aeronave cadastrada.");
+            console.log("\nNenhuma aeronave cadastrada, portanto, nenhuma peca para listar.");
             return;
         }
-        this.exibirCabecalho("RELATORIO DETALHADO DE PECAS E RESPONSAVEIS");
+
+        this.exibirCabecalho("TODAS AS PECAS CADASTRADAS");
+
         let totalPecas = 0;
-        const contadoresStatus = {
-            [StatusPeca.EM_PRODUCAO]: 0,
-            [StatusPeca.EM_TRANSPORTE]: 0,
-            [StatusPeca.PRONTA]: 0
-        };
-        this.aeronaves.forEach(aeronave => {
+        for (const aeronave of this.aeronaves) {
             const pecasDaAeronave = aeronave.getPecas();
             if (pecasDaAeronave.length > 0) {
-                console.log(`\n--- AERONAVE ${aeronave.codigo} (${aeronave.modelo}) ---`);
-                pecasDaAeronave.forEach((peca, pecaIndex) => {
-                    const funcionariosDaPeca = peca.listarFuncionarios();
-                    contadoresStatus[peca.status]++;
-                    totalPecas++;
-                    console.log(`\n${pecaIndex + 1}. Peca: ${peca.nome}`);
-                    console.log(` Status: ${peca.status} | Tipo: ${peca.tipo}`);
-                    console.log(` Fornecedor: ${peca.fornecedor}`);
-                    if (funcionariosDaPeca.length === 0) {
-                        console.log(` Funcionarios: Nenhum responsavel`);
-                    } else {
-                        console.log(` Funcionarios (${funcionariosDaPeca.length}):`);
-                        funcionariosDaPeca.forEach((func, funcIndex) => {
-                            console.log(` ${funcIndex + 1}. [${func.codigo}] ${func.nome} (${func.nivelPermissao})`);
-                            console.log(` Telefone: ${func.telefone}`);
-                        });
-                    }
-                    console.log("------------------------------------------------------------"); // Separador para cada peca
+                console.log(`\n--- Aeronave: [${aeronave.codigo}] ${aeronave.modelo} ---`);
+                pecasDaAeronave.forEach((p, i) => {
+                    console.log(`${i + 1}. Nome: ${p.nome}`);
+                    console.log(`   Tipo: ${p.tipo}`);
+                    console.log(`   Fornecedor: ${p.fornecedor}`);
+                    console.log(`   Status: ${p.status}`);
+                    console.log(`   Data de Registro: ${p.dataRegistro.toLocaleDateString('pt-BR')}`);
+                    console.log(this.SEPARADOR_MEDIO);
                 });
-            } else {
-                console.log(`\n--- AERONAVE ${aeronave.codigo} (${aeronave.modelo}) ---`);
-                console.log(" Nenhuma peca cadastrada para esta aeronave.");
+                totalPecas += pecasDaAeronave.length;
             }
-        });
-        console.log(`\n${this.SEPARADOR_GRANDE}`);
-        console.log("RESUMO GERAL DE PECAS:");
-        console.log(`Total de pecas no sistema: ${totalPecas}`);
-        console.log(`Em producao: ${contadoresStatus[StatusPeca.EM_PRODUCAO]}`);
-        console.log(`Em transporte: ${contadoresStatus[StatusPeca.EM_TRANSPORTE]}`);
-        console.log(`Prontas: ${contadoresStatus[StatusPeca.PRONTA]}`);
+        }
+
+        if (totalPecas === 0) {
+            console.log("\nNenhuma peca cadastrada em nenhuma aeronave.");
+        } else {
+            console.log(`\nTotal de pecas em todas as aeronaves: ${totalPecas}`);
+        }
         console.log(this.SEPARADOR_GRANDE);
         await this.pergunta("\nPressione Enter para continuar...");
     }
+
     // ==================== FUNCIONARIOS ====================
     private async menuFuncionarios(): Promise<void> {
         while (true) {
@@ -634,29 +470,27 @@ export class SistemaAerocode {
         const nome = await this.pergunta("Nome: ");
         const telefone = await this.pergunta("Telefone: ");
         const endereco = await this.pergunta("Endereco: ");
-        const usuario = await this.pergunta("Usuario: ");
-        if (this.funcionarios.some(f => f.usuario === usuario)) {
-            console.log("Usuario ja existe!");
-            return;
-        }
+        const usuario = await this.pergunta("Usuario de login: ");
         const senha = await this.pergunta("Senha: ");
-        const nivelStr = await this.pergunta("Nivel (ADMINISTRADOR/ENGENHEIRO/OPERADOR): ");
-        let nivel: NivelPermissao;
-        switch (nivelStr.toUpperCase()) {
-            case "ADMINISTRADOR": nivel = NivelPermissao.ADMINISTRADOR; break;
-            case "ENGENHEIRO": nivel = NivelPermissao.ENGENHEIRO; break;
-            case "OPERADOR": nivel = NivelPermissao.OPERADOR; break;
+        console.log("\n--- NIVEIS DE PERMISSAO ---");
+        console.log("1. OPERADOR");
+        console.log("2. ENGENHEIRO");
+        console.log("3. ADMINISTRADOR");
+        const nivelOpcao = await this.pergunta("Nivel de Permissao (1-3): ");
+        let nivelPermissao: NivelPermissao;
+        switch (nivelOpcao) {
+            case '1': nivelPermissao = NivelPermissao.OPERADOR; break;
+            case '2': nivelPermissao = NivelPermissao.ENGENHEIRO; break;
+            case '3': nivelPermissao = NivelPermissao.ADMINISTRADOR; break;
             default:
-                console.log("Nivel invalido!");
-                return;
+                console.log("Nivel de permissao invalido. Cadastrando como OPERADOR.");
+                nivelPermissao = NivelPermissao.OPERADOR;
         }
-        const func = new Funcionario(codigo, nome, telefone, endereco, usuario, senha, nivel);
-        this.funcionarios.push(func);
+        const novoFuncionario = new Funcionario(codigo, nome, telefone, endereco, usuario, senha, nivelPermissao);
+        this.funcionarios.push(novoFuncionario);
         this.salvarDados();
-        console.log(`\nFuncionario cadastrado!`);
-        console.log(`Codigo: ${codigo}`);
-        console.log(`Nome: ${nome}`);
-        console.log(`Nivel: ${nivel}`);
+        console.log("\nFuncionario cadastrado com sucesso!");
+        console.log(`Codigo: ${codigo} | Nome: ${nome} | Nivel: ${nivelPermissao}`);
     }
     private async listarFuncionarios(): Promise<void> {
         if (this.funcionarios.length === 0) {
